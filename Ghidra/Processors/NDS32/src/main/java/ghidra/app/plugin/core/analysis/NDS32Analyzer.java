@@ -139,7 +139,7 @@ public class NDS32Analyzer extends ConstantPropagationAnalyzer {
 			}
 		}
 
-		ContextEvaluator eval = new ConstantPropagationContextEvaluator(trustWriteMemOption) {
+		ConstantPropagationContextEvaluator eval = new ConstantPropagationContextEvaluator(monitor, trustWriteMemOption) {
 			@Override
 			public boolean evaluateDestination(VarnodeContext context, Instruction instruction) {
 				FlowType flowtype = instruction.getFlowType();
@@ -157,7 +157,13 @@ public class NDS32Analyzer extends ConstantPropagationAnalyzer {
 				return false;
 			}
 		};
-		
+
+		eval.setTrustWritableMemory(trustWriteMemOption)
+		    .setMinSpeculativeOffset(minSpeculativeRefAddress)
+		    .setMaxSpeculativeOffset(maxSpeculativeRefAddress)
+		    .setMinStoreLoadOffset(minStoreLoadRefAddress)
+		    .setCreateComplexDataFromPointers(createComplexDataFromPointers);
+
 		AddressSet resultSet = symEval.flowConstants(flowStart, null, eval, true, monitor);
 
 		// Add in any addresses we should assume got covered
